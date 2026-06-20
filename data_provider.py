@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 
-class Strategy:
+class DataProvider(ABC):
 
     @abstractmethod
-    def on_new_data_received(self, data):
+    def emit_data(self):
         pass
+
 
 
 if __name__ == '__main__':

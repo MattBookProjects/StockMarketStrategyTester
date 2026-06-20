@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-class Strategy:
+class MarketAction(ABC):
 
     @abstractmethod
-    def on_new_data_received(self, data):
+    def execute(self, portfolio):
         pass
 
 
