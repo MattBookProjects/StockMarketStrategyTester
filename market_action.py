@@ -1,31 +1,78 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
-class MarketAction(ABC):
+class Action(ABC):
+
 
     @abstractmethod
-    def execute(self):
+    def apply(self):
         pass
 
 
+
 @dataclass
-class StockAction(MarketAction):
+class TradeStockAction(Action):
     symbol: str
-    price_levels: list(PriceLevel)
+    volume: float
+    transaction_spec: TransactionSpecification
+ 
 
-@dataclass
-class BuyStockAction(StockAction):
 
-    def execute(self):
+
+
+    def apply(self):
         pass
 
 
-@dataclass
-class SellStockAction(StockAction):
 
-    def execute(self):
+
+@dataclass
+class TradeOptionAction(Action):
+    contract: OptionContract
+    quantity: int
+    transaction_spec: TransactionSpecification
+
+
+   
+
+
+    def apply(self):
+        pass 
+
+@dataclass
+class ExcerciseOptionInstructionAction(Action):
+    contract: OptionContract
+  
+
+
+
+    def apply(self):
         pass
+
+
+    
+
+@dataclass
+class TransactionSpecification:
+    side: TransactionSide
+    order_type: OrderType
+    order_specification: OrderSpecification
+
 
 
 
 if __name__ == '__main__':
     print("Works")
+
+
+def transaction_side_to_payload(side: TransactionSide):
+    if side == BUY:
+        return {
+            "side": "BUY"
+        }
+    elif side == SELL:
+        return {
+            "side": "SELL"
+        }
+    else:
+        raise ValueError
