@@ -5,7 +5,7 @@ class Action(ABC):
 
 
     @abstractmethod
-    def apply(self):
+    def apply(self, execution_model: ExecutionModel):
         pass
 
 
@@ -17,11 +17,8 @@ class TradeStockAction(Action):
     transaction_spec: TransactionSpecification
  
 
-
-
-
-    def apply(self):
-        pass
+    def apply(self, execution_model: ExecutionModel):
+        execution_model.send_order(StockOrder{symbol: symbol, volume: volume, transaction_spec: transaction_spec})
 
 
 
@@ -34,22 +31,31 @@ class TradeOptionAction(Action):
 
 
    
-
-
-    def apply(self):
-        pass 
+    def apply(self, execution_model: ExecutionModel):
+        execution_model.send_order(OptionOrder{contract: contract, quantity: quantity, transaction_spec: transaction_spec}) 
 
 @dataclass
 class ExcerciseOptionInstructionAction(Action):
     contract: OptionContract
+    
   
+    def apply(self, execution_model: ExecutionModel):
+        execution_model.schedule_excercising_option(self.contract)
 
+@dataclass
+class CancelExcercisingOptionAction(Action):
+    contract_id: str
+    
 
+    def apply(self, execution_model: ExecutionModel):
+        execution_model.cancel_excercising_option(self.contract_id)
 
-    def apply(self):
-        pass
+@dataclass
+class CancelOrderAction(Action):
+    order_id: str
 
-
+    def apply(self, execution_model: ExecutionModel):
+        execution_model.cancel_order(order_id)
     
 
 @dataclass
@@ -57,6 +63,15 @@ class TransactionSpecification:
     side: TransactionSide
     order_type: OrderType
     order_specification: OrderSpecification
+
+
+    def get_payload(self):
+        payload {
+            "side": self.side,
+            "order_type": self.order_type
+        }
+
+
 
 
 
