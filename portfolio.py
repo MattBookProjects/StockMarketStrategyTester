@@ -2,18 +2,10 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 
-class MarketValue(ABC):
-    pass
-
-@dataclass
-class StockMarketValue(MarketValue):
-    price: float
 
 
 
-
-
-class Position(ABC):
+class PortfolioPosition(ABC):
     
     @abstractmethod
     def get_value(self, market_value):
@@ -33,73 +25,96 @@ class Position(ABC):
 
 
 @dataclass
-class StockPosition(Position):
-    name: str
+class StockPosition(PortfolioPosition):
+    symbol: str
     quanity: float
 
+
+    def __init__(self, symbol, quanity):
+        self.symbol = symbol
+        self.quanity = quanity
+
     def __eq__(self, obj):
-        return isinstance(obj, StockPosition) and self.name == obj.name
+        return isinstance(obj, StockPosition) and self.symbol == obj.symbol
     
     def __add__(self, obj):
-        self.quanity += obj.quanity
+        if self != obj:
+            raise TypeError
+        return StockPosition(self.symbol, self.quanity + obj.quanity)
 
 
     def __sub__(self, obj):
-        self.quanity -= obj.quanity
+        if self != obj:
+            raise TypeError
+        return StockPosition(self.symbol, self.quanity - obj.quanity)
 
     def get_value(self, market_value):
         if not isinstance(market_value, StockMarketValue):
             raise TypeError
-        return self.quanity * market_value.price 
+        return self.quanity * market_value.price
+
+
+@dataclass
+class OptionPosition(PortfolioPosition):
+    contract: OptionContract
+    quanity: int 
+
+    def __init__(self, contact, quanity):
+        self.contact = contact
+        self.quanity = quanity
+
+    def __eq__(self, obj):
+        return isinstance(obj, OptionPosition) and self.contract == obj.contract
+
+    def __add__(self, obj):
+        if self != obj:
+            raise TypeError
+        return OptionPosition(self.contact, self.quanity + obj.quanity)
+
+    def __sub__(self, obj):
+        if self != obj:
+            raise TypeError
+        return OptionPosition(self.contact, self.quanity - obj.quanity)
+
+    def get_value(self, market_value):
+        pass
+
+        
 
 @dataclass
 class Portfolio:
     cash: float
-    positions: list[Position]
+    positions: list(Position)
 
 
     def __init__(self, cash, positions=[]):
         self.cash = cash
-        self.position = positions
+        self.positions = positions
 
-    def buy(self, postion: Position, market_value: MarketValue):
-        position_value =  position.get_value(market_value):
-        if position_value > self.cash:
-            return False
-        self.cash -= position_value
+    def reduce_position(self, postion: Position):
         try:
-            index = self.positions.index(position)
-            self.positions[index] += position
-        except ValueError as err:
-            self.positions.append(position)
-        finally:
-            return True
-            
-        
-        
-    def sell(self, position: Position, market_value: MarketValue):
-        try:
-            index = self.positions.index(position)
-            held_position = self.positions[index]
-            if position > held_position:
-                return False
-            position_value = postion.get_value(market_value)
-            held_position -= position
-            self.cash += position_value
+            pos_idx = self.positions.index(position)
+            self.posiotions[pos_idx] -= position
         except ValueError:
-            return False
+            print("Not enough instrument in portfolio")
 
-        
-    def sell_whole_stock(self, stock: str):
+    def increase_position(self, posotion: Position)
         try:
-            index = self.positions.index(Stock(name=stock))
-            held_position = self.positions[index]
+            pos_idx = self.posistions.index(position)
+            self.posistions[pos_idx] += position
+        except ValueError:
+            self.positions.append(position)
+        
+
+
+    def add_cash(self, amount):
+        self.cash += cash
+        
+    def substract_cash(self, amount):
+        self.cash -= cash
 
 
 
 
 if __name__=='__main__':
-    aapl = StockPosition("AAPL", 10)
-    aapl2 = StockPosition("AAPL", 20)
-    aapl_total = aapl + aapl2
-    print(f"name: {aapl_total.name}\tquanity: {aapl_total.quanity}")
+    pass
